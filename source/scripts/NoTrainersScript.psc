@@ -1,5 +1,7 @@
 Scriptname NoTrainersScript extends ReferenceAlias  
 
+string property iTrainingNumAllowedPerLevel    = "iTrainingNumAllowedPerLevel" autoreadonly
+
 Faction property JobTrainerFaction auto
 Faction property JobTrainerArcheryFaction auto
 Faction property JobTrainerAlchemyFaction auto
@@ -27,10 +29,12 @@ Faction[] trainerNPCFactions
 ; not catch them.
 
 Event OnInit()
+	;Game.SetGameSettingInt(iTrainingNumAllowedPerLevel, 0)
 	RegisterForMenu("Dialogue Menu")
 EndEvent
 
 Event OnPlayerLoadGame()
+	;Game.SetGameSettingInt(iTrainingNumAllowedPerLevel, 0)
 	RegisterForMenu("Dialogue Menu")
 EndEvent
 
@@ -54,13 +58,15 @@ Event OnMenuOpen(string menuName)
 		while npcIndex < npcs.Length
 			if npcs[npcIndex].IsInDialogueWithPlayer()
 				;debug.notification(trainerNPC.GetBaseObject().GetName() + " is in dialogue with player")
-			endif
-			if npcs[npcIndex].IsInDialogueWithPlayer() && npcs[npcIndex].IsInFaction(JobTrainerFaction)
-				trainerNPC = npcs[npcIndex]
-				trainerNPCFactions = trainerNPC.GetFactions(-128,127)
-				RemoveFromTrainerFactions(trainerNPC)
-				;debug.notification("Removed " + trainerNPC.GetBaseObject().GetName() + " from trainer factions")
-				return
+				if npcs[npcIndex].IsInFaction(JobTrainerFaction)
+					trainerNPC = npcs[npcIndex]
+					trainerNPCFactions = trainerNPC.GetFactions(-128,127)
+					RemoveFromTrainerFactions(trainerNPC)
+					;debug.notification("Removed " + trainerNPC.GetBaseObject().GetName() + " from trainer factions")
+					return
+				else
+					;debug.notification(trainerNPC.GetBaseObject().GetName() + " is not in JobTrainerFaction")
+				endif
 			endif
 			npcIndex += 1
 		endwhile
